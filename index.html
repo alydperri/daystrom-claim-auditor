@@ -141,12 +141,17 @@ body { background: var(--bg); color: var(--text); font-family: var(--mono); over
 .hero-text { flex: 1; }
 
 .hero-eyebrow {
-  font-family: var(--hd); font-size: 0.6rem;
+  font-family: var(--hd); font-size: 0.52rem;
   letter-spacing: 0.3em; color: var(--orange);
   text-transform: uppercase; margin-bottom: 1.25rem;
   line-height: 2.2;
 }
-.hero-eyebrow span { color: var(--dim); font-size: 0.5rem; letter-spacing: 0.2em; }
+
+.hero-audience {
+  font-family: var(--mono); font-size: 0.74rem;
+  color: var(--dim); line-height: 1.65;
+  max-width: 480px; margin-bottom: 2rem;
+}
 
 .hero-title {
   font-family: var(--hd); font-weight: 900;
@@ -610,8 +615,7 @@ footer {
     <div class="hero-content">
       <div class="hero-text">
         <div class="hero-eyebrow">
-          Daystrom Institute · Canon Claims Unit · Research Specialist<br>
-          <span>Stardate 47634.44 · Prime Timeline · Investigative Mode Active</span>
+          Daystrom Institute · Canon Claims Unit · Research Specialist
         </div>
         <h1 class="hero-title">
           DAYSTROM<br>
@@ -621,6 +625,7 @@ footer {
           "For Star Trek questions where the real answer is:<br>
           it depends — and here's exactly what it depends on."
         </p>
+        <p class="hero-audience">Built for fans, podcasters, video essayists, trivia hosts, and wiki editors who want the nuance without getting lost in Memory Alpha tabs.</p>
         <div class="btn-row">
           <a href="https://github.com/alydperri/daystrom-claim-auditor" class="btn btn-fill" target="_blank">↗ Access on GitHub</a>
           <a href="#comparison" class="btn btn-outline">See It In Action</a>
@@ -1108,8 +1113,6 @@ footer {
         <div class="q-chip">"Did Star Trek predict X technology, or is that overstated?"</div>
       </div>
     </div>
-
-    <p class="built-for reveal">Built for fans, podcasters, video essayists, trivia hosts, and wiki editors who want the nuance without getting lost in Memory Alpha tabs.</p>
 
     <div class="cta-bar reveal">
       <div>
