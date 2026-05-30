@@ -486,6 +486,12 @@ section { padding: 6rem 0; position: relative; }
 }
 .q-chip:hover { border-color: var(--orange); background: rgba(255,153,0,0.05); }
 
+.built-for {
+  font-family: var(--mono); font-size: 0.82rem;
+  color: var(--dim); text-align: center;
+  margin: 2rem 0; line-height: 1.6;
+}
+
 .cta-bar {
   display: flex; align-items: center;
   justify-content: space-between; flex-wrap: wrap;
@@ -942,7 +948,7 @@ footer {
         The answer shifts depending on whether you're counting named characters, credited roles,<br>
         voice-only performances, holodeck appearances, or whether "the computer" is one role or many.
       </p>
-      <p class="verdict-punch">A trivia bot picks one. Stav builds the counting method first.</p>
+      <p class="verdict-punch">A trivia bot picks one. Stav builds the counting method, checks the source tier, and labels the confidence level.</p>
     </div>
   </div>
 </section>
@@ -1102,6 +1108,8 @@ footer {
         <div class="q-chip">"Did Star Trek predict X technology, or is that overstated?"</div>
       </div>
     </div>
+
+    <p class="built-for reveal">Built for fans, podcasters, video essayists, trivia hosts, and wiki editors who want the nuance without getting lost in Memory Alpha tabs.</p>
 
     <div class="cta-bar reveal">
       <div>
