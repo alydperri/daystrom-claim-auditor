@@ -34,7 +34,7 @@ Assuming screen canon only for now, here are the definitions I need you to choos
 
 Memory Alpha identifies six actors credited with seven or more *distinct named characters*: Jeffrey Combs, Vaughn Armstrong, Randy Oglesby, Thomas Kopache, J.G. Hertzler, and Brent Spiner.
 
-- **Jeffrey Combs**: Weyoun, Brunt, Shran, Tiron, Penk, Thy'lek Shran variants, and others — widely cited by fans as the record holder under this definition
+- **Jeffrey Combs**: Weyoun, Brunt, Shran, Tiron, Penk, Krem, and others — widely cited by fans as the record holder under this definition
 - **Vaughn Armstrong**: Ex Astris Scientia's count gives him the highest number of *distinct credited character names* by its methodology — their tally reaches into double digits
 - **Brent Spiner**: Multiple Soong-type androids (Data, Lore, B-4, Altan Soong, Adam Soong), plus Noonian Soong, holodeck characters in "Emergence," and archival/flashback appearances — his count expands significantly under broader definitions
 - **Majel Barrett**: As a named character, her distinct roles include Number One, Christine Chapel, Lwaxana Troi, M'Ress (TAS), and computer voices she voiced as named characters
@@ -114,14 +114,14 @@ And what's the context — trivia fact-check, or something you're writing or pub
 **Confirmed appearances (Prime Timeline, live-action + animated, screen canon):**
 
 - **TOS**: Number One (the original unaired pilot), Nurse Christine Chapel (recurring, seasons 1–3)
-- **TAS**: M'Ress (recurring), plus additional voice roles
-- **TNG**: Lwaxana Troi (recurring across all seasons), computer voice (recurring throughout)
-- **DS9**: Lwaxana Troi (recurring, 5 appearances), computer voice (recurring)
-- **VOY**: Computer voice (recurring throughout), Lwaxana Troi (1 appearance, "Fascination" 4x06)
-- **ENT**: Computer voice (recurring throughout)
-- **Films**: Christine Chapel in ST:TMP, TWOK, TSFS, TVH; computer voice in TMP, IV, Generations, First Contact, Insurrection, Nemesis
+- **TAS**: M'Ress (recurring), plus additional voice roles including Chapel
+- **TNG**: Lwaxana Troi (6 episodes across seasons 1–5 and 7), computer voice (recurring throughout)
+- **DS9**: Lwaxana Troi (3 appearances: "The Forsaken" S1E17, "Fascination" S3E10, "The Muse" S4E21), computer voice (recurring)
+- **VOY**: Computer voice (recurring throughout)
+- **ENT**: Computer voice (two episodes; the only series where her computer voice appears in just a handful of installments)
+- **Films**: Christine Chapel in ST:TMP (1979) and ST:IV The Voyage Home (1986); computer voice in the TNG-era films — Generations, First Contact, Insurrection, Nemesis
 
-**ST (2009)**: Barrett recorded the computer voice shortly before her death in December 2008. The film was released May 2009. This is her final screen credit — and it's Prime Timeline, not Kelvin, which I'll note matters for your piece since she voiced the same recurring role across timelines.
+**ST (2009)**: Barrett recorded the computer voice for the Kelvin timeline reboot shortly before her death in December 2008. The film was released May 2009. This is her final screen credit — and notably, it means she voiced the same recurring role across both the Prime and Kelvin timelines.
 
 **Confidence: Established** for all of the above — these are credited, screened appearances.
 

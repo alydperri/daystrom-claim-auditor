@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daystrom Claim Auditor — Star Trek Canon Researcher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --orange:   #FF9900;
+  --peach:    #FFCC99;
+  --pink:     #CC6699;
+  --blue:     #6699CC;
+  --lt-blue:  #99CCFF;
+  --red:      #CC4444;
+  --green:    #33CC99;
+  --bg:       #00000E;
+  --panel:    #00001C;
+  --text:     #FFCC99;
+  --dim:      #7788AA;
+  --hd:       'Orbitron', 'Courier New', monospace;
+  --mono:     'Share Tech Mono', 'Courier New', monospace;
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--mono); overflow-x: hidden; }
+
+/* ─── BOOT OVERLAY ─────────────────────────────────────── */
+#boot {
+  position: fixed; inset: 0; background: #000;
+  z-index: 2000; display: flex; flex-direction: column;
+  justify-content: center; padding: 12vh 12vw;
+  transition: opacity 1s ease;
+}
+#boot.out { opacity: 0; pointer-events: none; }
+
+.bl {
+  font-family: var(--mono); font-size: clamp(0.7rem, 1.2vw, 0.95rem);
+  color: var(--orange); line-height: 2; opacity: 0;
+  transition: opacity 0.1s; white-space: nowrap; overflow: hidden;
+}
+.bl.dim { color: var(--dim); }
+.bl.on  { opacity: 1; }
+.bl.big { font-size: clamp(0.9rem, 1.8vw, 1.2rem); color: #FFF; margin-top: 0.5rem; }
+@keyframes blink { 50% { opacity: 0; } }
+.cursor { animation: blink 0.7s step-end infinite; }
+
+/* ─── TRANSPORTER CANVAS ────────────────────────────────── */
+#shimmer {
+  position: fixed; inset: 0; z-index: 1999;
+  pointer-events: none; opacity: 0;
+}
+
+
+
+/* ─── LCARS BUILDING BLOCKS ─────────────────────────────── */
+.elbow-tl {
+  background: #7A5200; border-radius: 0 0 0 44px;
+  position: relative; overflow: hidden;
+}
+.elbow-tl::after {
+  content: ''; position: absolute; bottom: 0; right: 0;
+  width: 44px; height: 44px; background: var(--bg);
+  border-radius: 44px 0 0 0;
+}
+.elbow-bl {
+  background: #3D1830; border-radius: 44px 0 0 0;
+  position: relative; overflow: hidden;
+}
+.elbow-bl::after {
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 44px; height: 44px; background: var(--bg);
+  border-radius: 0 0 0 44px;
+}
+
+.pill {
+  border-radius: 100px;
+  font-family: var(--hd); font-size: 0.52rem;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: #000; display: flex; align-items: center;
+  justify-content: flex-end; padding-right: 14px;
+  font-weight: 600;
+}
+
+/* ─── HERO ──────────────────────────────────────────────── */
+#hero {
+  min-height: 100vh; display: flex; flex-direction: column;
+  opacity: 0; transition: opacity 1s ease;
+  background: var(--bg);
+  padding-top: 3rem;
+}
+#hero.on { opacity: 1; }
+
+.hero-top {
+  display: flex; height: 80px;
+}
+.hero-top .elbow-tl { width: 200px; min-width: 200px; }
+.hero-hbars {
+  flex: 1; display: flex; flex-direction: column;
+  gap: 7px; padding: 10px 0 10px 14px;
+}
+.hero-hbars .pill { flex: 1; }
+.hb1 { background: #7A5200; }
+.hb2 { background: #3D1830; flex: 0.6 !important; }
+.hb3 { background: #162840; flex: 0.8 !important; }
+
+.hero-body {
+  flex: 1; display: flex;
+}
+
+/* sidebar */
+.hero-sidebar {
+  width: 200px; min-width: 200px;
+  display: flex; flex-direction: column;
+  gap: 8px; padding: 12px 12px;
+}
+.hero-sidebar .pill { height: 38px; background: #7A5200; }
+.hero-sidebar .pill.p { background: #3D1830; }
+.hero-sidebar .pill.b { background: #162840; }
+.hero-sidebar .pill.t { background: #2A1E12; font-size: 0.46rem; height: 28px; }
+.hero-sidebar .pill.s { background: #1A2A38; font-size: 0.46rem; height: 28px; }
+.hero-sidebar .pill.m { background: #2A1428; font-size: 0.46rem; height: 28px; }
+.hero-sidebar .pill.g { background: #122818; font-size: 0.46rem; height: 28px; }
+.sidebar-gap { flex: 1; }
+.sidebar-status {
+  font-family: var(--mono); font-size: 0.55rem;
+  color: var(--dim); line-height: 2; padding: 0 8px;
+  border-top: 1px solid #1a1a3a; padding-top: 8px;
+}
+.sidebar-status .live { color: var(--orange); }
+
+/* hero content */
+.hero-content {
+  flex: 1; display: flex; align-items: center;
+  gap: 3rem; padding: 2rem 4rem 2rem 3rem;
+}
+
+.hero-text { flex: 1; }
+
+.hero-eyebrow {
+  font-family: var(--hd); font-size: 0.6rem;
+  letter-spacing: 0.3em; color: var(--orange);
+  text-transform: uppercase; margin-bottom: 1.25rem;
+  line-height: 2.2;
+}
+.hero-eyebrow span { color: var(--dim); font-size: 0.5rem; letter-spacing: 0.2em; }
+
+.hero-title {
+  font-family: var(--hd); font-weight: 900;
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  color: #FFF; line-height: 1.05; margin-bottom: 1.25rem;
+}
+.hero-title em { color: var(--orange); font-style: normal; }
+
+.hero-sub {
+  font-family: var(--mono); font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+  color: var(--peach); line-height: 1.75; max-width: 500px;
+  margin-bottom: 2.25rem; font-style: italic;
+  border-left: 3px solid var(--orange);
+  padding-left: 1.25rem;
+}
+
+.btn-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+.btn {
+  font-family: var(--hd); font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.8rem 2rem; border-radius: 100px;
+  text-decoration: none; display: inline-block;
+  transition: all 0.2s ease; cursor: pointer; border: none;
+}
+.btn-fill {
+  background: var(--orange); color: #000;
+}
+.btn-fill:hover {
+  background: var(--peach);
+  box-shadow: 0 0 28px rgba(255,153,0,0.5);
+}
+.btn-outline {
+  background: transparent; color: var(--orange);
+  border: 2px solid var(--orange);
+}
+.btn-outline:hover {
+  background: rgba(255,153,0,0.08);
+  box-shadow: 0 0 20px rgba(255,153,0,0.25);
+}
+
+/* stav portrait */
+.portrait-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.5rem;
+  position: relative;
+}
+.portrait-frame {
+  position: relative; width: 200px; height: 280px;
+}
+.portrait-frame::before {
+  content: '';
+  position: absolute; inset: -8px;
+  border: 2px solid var(--orange); border-radius: 12px;
+  opacity: 0.3;
+}
+.portrait-frame::after {
+  content: '';
+  position: absolute; inset: -4px;
+  border: 1px solid var(--orange); border-radius: 10px;
+  opacity: 0.15;
+}
+.portrait-chip {
+  font-family: var(--hd); font-size: 0.58rem;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--orange); text-align: center;
+}
+.portrait-chip.sub { color: var(--dim); font-size: 0.52rem; }
+
+/* LCARS bottom strip */
+.hero-bottom {
+  display: flex; height: 55px;
+}
+.hero-bottom .elbow-bl { width: 200px; min-width: 200px; }
+.hero-fbars {
+  flex: 1; display: flex; gap: 7px;
+  padding: 10px 0 10px 14px;
+}
+.hero-fbars .pill { flex: 1; }
+.fb1 { background: #3D1830; }
+.fb2 { background: #162840; flex: 2 !important; }
+.fb3 { background: #7A5200; flex: 0.4 !important; }
+
+/* ─── SECTIONS ──────────────────────────────────────────── */
+section { padding: 6rem 0; position: relative; }
+.wrap {
+  max-width: 1140px; margin: 0 auto;
+  padding: 0 3rem;
+}
+
+.sec-tag {
+  font-family: var(--hd); font-size: 0.58rem;
+  letter-spacing: 0.35em; color: var(--pink);
+  text-transform: uppercase; margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.sec-tag::before {
+  content: ''; display: block;
+  width: 32px; height: 2px; background: var(--pink);
+}
+
+.sec-title {
+  font-family: var(--hd); font-weight: 700;
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  color: #FFF; line-height: 1.15; margin-bottom: 1.5rem;
+}
+.sec-title em { color: var(--orange); font-style: normal; }
+
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.on { opacity: 1; transform: none; }
+
+/* ─── PROBLEM SECTION ───────────────────────────────────── */
+#problem { background: #00000A; }
+
+.big-q {
+  font-family: var(--hd); font-size: clamp(1rem, 2.2vw, 1.5rem);
+  color: var(--peach); padding: 1.5rem 2rem;
+  border-left: 4px solid var(--orange);
+  background: rgba(255,153,0,0.05);
+  border-radius: 0 8px 8px 0;
+  margin: 2rem 0 3rem; font-style: italic;
+}
+
+.actor-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem; margin-bottom: 3rem;
+}
+
+.actor-card {
+  background: #00001A; border: 1px solid #1a1a3a;
+  border-radius: 10px; padding: 1.5rem 1rem 1.25rem;
+  text-align: center; position: relative; overflow: hidden;
+  transition: border-color 0.25s, transform 0.25s;
+}
+.actor-card:hover { border-color: var(--orange); transform: translateY(-5px); }
+.actor-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: #252545;
+}
+.actor-card:hover::before { background: var(--orange); }
+
+.actor-card svg { display: block; margin: 0 auto 1rem; }
+.actor-name {
+  font-family: var(--hd); font-size: 0.72rem;
+  color: #FFF; margin-bottom: 0.25rem;
+}
+.actor-roles {
+  font-family: var(--mono); font-size: 0.62rem;
+  color: var(--dim); margin-bottom: 1rem;
+}
+.actor-answer {
+  font-family: var(--mono); font-size: 0.78rem;
+  color: var(--orange); padding: 0.6rem 0.75rem;
+  background: rgba(255,153,0,0.07); border-radius: 5px;
+  line-height: 1.45; font-style: italic;
+}
+
+.verdict-block {
+  text-align: center; padding: 2.5rem 1rem;
+  border-top: 1px solid #1a1a3a; margin-top: 1rem;
+}
+.verdict-main {
+  font-family: var(--hd); font-size: clamp(1rem, 2vw, 1.35rem);
+  color: var(--peach); margin-bottom: 0.75rem;
+}
+.verdict-sub {
+  font-family: var(--mono); font-size: 0.85rem;
+  color: var(--dim); line-height: 1.7; margin-bottom: 1rem;
+}
+.verdict-punch {
+  font-family: var(--hd); font-size: 1.05rem;
+  color: var(--orange); letter-spacing: 0.05em;
+}
+
+/* ─── COMPARISON SECTION ────────────────────────────────── */
+#comparison { background: #000008; }
+
+.comp-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 2rem; margin-top: 2rem;
+}
+
+.term {
+  background: #000; border: 1px solid;
+  border-radius: 8px; overflow: hidden;
+}
+.term.bot  { border-color: var(--red); }
+.term.stav { border-color: var(--orange); }
+
+.term-head {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.8rem 1.25rem; border-bottom: 1px solid;
+}
+.term.bot  .term-head { background: rgba(204,68,68,0.12); border-color: var(--red); color: var(--red); }
+.term.stav .term-head { background: rgba(255,153,0,0.08); border-color: var(--orange); color: var(--orange); }
+
+.term-dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; opacity: 0.7; }
+.term-label { font-family: var(--hd); font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; }
+
+.term-body {
+  padding: 1.5rem; min-height: 300px;
+  font-family: var(--mono); font-size: 0.82rem;
+  line-height: 1.7; color: #CCC;
+  display: flex; flex-direction: column;
+  gap: 0;
+}
+
+.tl { display: block; }
+.tl-query  { color: var(--dim); }
+.tl-proc   { color: var(--red); }
+.tl-ans    { color: #FF8888; }
+.tl-gold   { color: var(--orange); }
+.tl-type   { color: var(--pink); }
+.tl-opt    { color: var(--lt-blue); padding-left: 1.25rem; }
+.tl-prompt { color: var(--dim); }
+
+.t-cursor {
+  display: inline-block; width: 7px; height: 13px;
+  vertical-align: middle; margin-left: 2px;
+  animation: blink 0.8s step-end infinite;
+}
+.t-cursor.r { background: var(--red); }
+.t-cursor.g { background: var(--orange); }
+
+.comp-action {
+  display: flex; justify-content: center; gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* ─── UNDER THE HOOD ────────────────────────────────────── */
+#hood { background: #00000E; }
+
+.hood-grid {
+  display: grid; grid-template-columns: 1fr 1.1fr;
+  gap: 4rem; margin-top: 2rem; align-items: start;
+}
+
+.folder-tree {
+  font-family: var(--mono); font-size: 0.82rem;
+  background: #000; border: 1px solid #1a1a3a;
+  border-radius: 8px; padding: 1.75rem 1.5rem;
+  line-height: 2.1;
+}
+.ft-root  { color: var(--orange); font-weight: bold; }
+.ft-dir   { color: var(--lt-blue); }
+.ft-file  { color: var(--peach); }
+.ft-key   { color: var(--pink); }
+.ft-note  { color: #333; font-size: 0.7rem; }
+
+.icm-note {
+  margin-top: 1.5rem; padding: 1.25rem 1.5rem;
+  border: 1px solid #1a2a3a; border-radius: 8px;
+  background: rgba(102,153,204,0.04);
+}
+.icm-note .sec-tag { margin-bottom: 0.5rem; font-size: 0.52rem; }
+.icm-note p {
+  font-family: var(--mono); font-size: 0.8rem;
+  color: var(--dim); line-height: 1.75;
+}
+
+.file-list { display: flex; flex-direction: column; gap: 0.9rem; }
+
+.fd {
+  padding: 1rem 1.25rem; border-left: 3px solid #2A3A52;
+  background: rgba(0,0,30,0.4); border-radius: 0 6px 6px 0;
+  opacity: 0; transform: translateX(-20px);
+  transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.8s ease;
+  cursor: default;
+}
+.fd.on { opacity: 1; transform: none; }
+.fd.fd-active { border-color: var(--orange); }
+.fd.fd-active .fd-name { color: var(--orange); }
+.fd.fd-hover { border-color: var(--orange); }
+.fd.fd-hover .fd-name { color: var(--orange); }
+
+.fd-name {
+  font-family: var(--hd); font-size: 0.6rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 0.3rem; color: #5577AA;
+  transition: color 0.8s ease;
+}
+.fd-desc {
+  font-family: var(--mono); font-size: 0.78rem;
+  color: var(--dim); line-height: 1.55;
+}
+
+/* ─── CTA SECTION ───────────────────────────────────────── */
+#cta { background: #000008; }
+
+.method-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem; margin: 2rem 0 3rem;
+}
+.method-card {
+  background: #00001A; border: 1px solid #1a1a3a;
+  border-radius: 10px; padding: 1.75rem;
+  transition: border-color 0.2s;
+}
+.method-card:hover { border-color: #334455; }
+.m-num {
+  font-family: var(--hd); font-size: 2.5rem; font-weight: 900;
+  color: var(--orange); opacity: 0.25; margin-bottom: 0.5rem;
+  line-height: 1;
+}
+.m-title {
+  font-family: var(--hd); font-size: 0.68rem;
+  letter-spacing: 0.1em; color: #FFF;
+  text-transform: uppercase; margin-bottom: 0.75rem;
+}
+.m-code {
+  font-family: var(--mono); font-size: 0.78rem;
+  background: #000; border: 1px solid #1a1a3a;
+  border-radius: 5px; padding: 0.75rem 1rem;
+  color: var(--orange); margin-bottom: 0.75rem;
+  line-height: 1.7;
+}
+.m-desc {
+  font-family: var(--mono); font-size: 0.76rem;
+  color: var(--dim); line-height: 1.6;
+}
+
+.qs-label { font-family: var(--hd); font-size: 0.58rem; letter-spacing: 0.3em; color: var(--orange); text-transform: uppercase; margin-bottom: 1rem; }
+.qs-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem; margin-bottom: 3rem;
+}
+.q-chip {
+  font-family: var(--mono); font-size: 0.78rem;
+  color: var(--peach); padding: 0.65rem 1rem;
+  border: 1px solid #1a1a3a; border-radius: 5px;
+  background: rgba(255,204,153,0.02);
+  transition: border-color 0.2s, background 0.2s;
+  line-height: 1.4;
+}
+.q-chip:hover { border-color: var(--orange); background: rgba(255,153,0,0.05); }
+
+.cta-bar {
+  display: flex; align-items: center;
+  justify-content: space-between; flex-wrap: wrap;
+  gap: 2rem; padding: 2.75rem 3rem;
+  border: 1px solid rgba(255,153,0,0.4);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(100,60,0,0.25) 0%, rgba(0,0,18,0.9) 60%);
+  box-shadow: 0 0 60px rgba(255,153,0,0.1), 0 0 120px rgba(255,153,0,0.05);
+  margin-top: 1rem;
+}
+.cta-kicker {
+  font-family: var(--hd); font-weight: 700;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  color: #FFF; line-height: 1.2;
+}
+.cta-sub {
+  font-family: var(--mono); font-size: 0.88rem;
+  color: var(--dim); margin-top: 0.6rem; line-height: 1.6;
+  max-width: 480px;
+}
+
+/* ─── FOOTER ────────────────────────────────────────────── */
+footer {
+  background: #000; border-top: 1px solid #111;
+  padding: 2rem 3rem;
+  display: flex; justify-content: space-between;
+  align-items: center; flex-wrap: wrap; gap: 1rem;
+}
+.ft-left {
+  font-family: var(--hd); font-size: 0.58rem;
+  letter-spacing: 0.2em; color: var(--orange);
+  text-transform: uppercase; line-height: 2;
+}
+.ft-right {
+  font-family: var(--mono); font-size: 0.68rem;
+  color: var(--dim); line-height: 1.8; text-align: right;
+  max-width: 500px;
+}
+.ft-right a { color: var(--orange); text-decoration: none; }
+.ft-right a:hover { color: var(--peach); }
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .actor-grid { grid-template-columns: repeat(2, 1fr); }
+  .comp-grid  { grid-template-columns: 1fr; }
+  .hood-grid  { grid-template-columns: 1fr; }
+  .method-grid { grid-template-columns: 1fr; }
+  .qs-grid    { grid-template-columns: 1fr; }
+  .portrait-wrap { display: none; }
+}
+@media (max-width: 640px) {
+  .hero-sidebar { display: none; }
+  .hero-top .elbow-tl { width: 120px; min-width: 120px; }
+  .hero-bottom .elbow-bl { width: 120px; min-width: 120px; }
+  .actor-grid { grid-template-columns: 1fr; }
+  .hero-content { padding: 2rem 1.5rem; }
+  .wrap { padding: 0 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+
+<!-- ═══ BOOT OVERLAY ════════════════════════════════════ -->
+<div id="boot">
+  <div class="bl dim" id="b1">DAYSTROM INSTITUTE — RESEARCH DIVISION — TERMINAL ACCESS v4.7</div>
+  <div class="bl dim" id="b2">AUTHENTICATION: RESEARCH SPECIALIST CLEARANCE VERIFIED</div>
+  <div class="bl"     id="b3">STARDATE 47634.44 — INITIALIZING CANON CLAIMS UNIT...</div>
+  <div class="bl"     id="b4" style="margin-top:0.4rem">LOADING INVESTIGATIVE PROTOCOLS ................... <span style="color:#33FF99">OK</span></div>
+  <div class="bl"     id="b5">LOADING SOURCE HIERARCHY ........................... <span style="color:#33FF99">OK</span></div>
+  <div class="bl"     id="b6">LOADING COUNTING METHODOLOGY ....................... <span style="color:#33FF99">OK</span></div>
+  <div class="bl"     id="b7">LOADING CANON BOUNDARY MAP ......................... <span style="color:#33FF99">OK</span></div>
+  <div class="bl"     id="b8">LOADING CONFIDENCE SCALE ........................... <span style="color:#33FF99">OK</span></div>
+  <div class="bl big" id="b9" style="margin-top:1rem">RESEARCH SPECIALIST: <span style="color:var(--orange)">STAV</span></div>
+  <div class="bl"     id="b10">DESIGNATION: VULCAN ARCHIVIST — DAYSTROM INSTITUTE CANON CLAIMS UNIT</div>
+  <div class="bl"     id="b11" style="margin-top:1rem; font-size:1.1rem; color:var(--orange)">READY <span class="cursor">_</span></div>
+</div>
+
+<!-- ═══ TRANSPORTER CANVAS ══════════════════════════════ -->
+<canvas id="shimmer"></canvas>
+
+<!-- ═══════════════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════════════════ -->
+<section id="hero">
+  <!-- Top LCARS bar -->
+  <div class="hero-top">
+    <div class="elbow-tl"></div>
+    <div class="hero-hbars">
+      <div class="pill hb1"></div>
+      <div class="pill hb2"></div>
+      <div class="pill hb3"></div>
+    </div>
+  </div>
+
+  <div class="hero-body">
+    <!-- LCARS sidebar -->
+    <div class="hero-sidebar">
+      <div class="pill"></div>
+      <div class="pill p"></div>
+      <div class="pill b"></div>
+      <div class="pill t"></div>
+      <div class="pill s"></div>
+      <div class="pill m"></div>
+      <div class="pill g"></div>
+      <div class="sidebar-gap"></div>
+      <div class="sidebar-status">
+        <div>UNIT: CCU-01</div>
+        <div>STATUS: <span class="live">ACTIVE ●</span></div>
+        <div>SPEC: STAV</div>
+        <div>MODE: INVESTIGATIVE</div>
+      </div>
+    </div>
+
+    <!-- Main hero content -->
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="hero-eyebrow">
+          Daystrom Institute · Canon Claims Unit · Research Specialist<br>
+          <span>Stardate 47634.44 · Prime Timeline · Investigative Mode Active</span>
+        </div>
+        <h1 class="hero-title">
+          DAYSTROM<br>
+          <em>CLAIM AUDITOR</em>
+        </h1>
+        <p class="hero-sub">
+          "For Star Trek questions where the real answer is:<br>
+          it depends — and here's exactly what it depends on."
+        </p>
+        <div class="btn-row">
+          <a href="https://github.com/alydperri/daystrom-claim-auditor" class="btn btn-fill" target="_blank">↗ Access on GitHub</a>
+          <a href="#comparison" class="btn btn-outline">See It In Action</a>
+        </div>
+      </div>
+
+      <!-- Stav Portrait SVG -->
+      <div class="portrait-wrap">
+        <div class="portrait-chip">Research Specialist</div>
+        <div class="portrait-frame">
+          <!-- STAV — Vulcan Archivist, low-poly SVG original artwork -->
+          <svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" style="width:200px;height:280px;">
+            <defs>
+              <radialGradient id="glow" cx="50%" cy="35%" r="55%">
+                <stop offset="0%" stop-color="#1a3050" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#000011" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+
+            <!-- ambient glow -->
+            <ellipse cx="100" cy="120" rx="95" ry="130" fill="url(#glow)"/>
+
+            <!-- UNIFORM body -->
+            <polygon points="22,280 178,280 182,205 165,188 140,178 100,175 60,178 35,188 18,205" fill="#0C2030"/>
+            <!-- uniform chest panel -->
+            <polygon points="75,175 125,175 130,192 100,197 70,192" fill="#153A55"/>
+            <!-- rank pips -->
+            <circle cx="138" cy="190" r="3.5" fill="#FF9900" opacity="0.8"/>
+            <circle cx="147" cy="190" r="3.5" fill="#FF9900" opacity="0.8"/>
+            <circle cx="156" cy="190" r="3.5" fill="#FF9900" opacity="0.5"/>
+            <!-- collar detail -->
+            <polygon points="82,175 118,175 120,180 100,182 80,180" fill="#0D2840"/>
+
+            <!-- NECK -->
+            <polygon points="84,162 116,162 119,175 81,175" fill="#B8825A"/>
+
+            <!-- HEAD — base shape, low-poly facets -->
+            <!-- main head polygon -->
+            <polygon points="58,78 100,52 142,78 147,132 140,163 100,172 60,163 53,132" fill="#BC8860"/>
+            <!-- forehead highlight centre -->
+            <polygon points="80,58 100,52 120,58 110,78 90,78" fill="#CCAA80"/>
+            <!-- left cheek light -->
+            <polygon points="58,78 76,76 72,118 55,112" fill="#CCAA80"/>
+            <!-- right cheek light -->
+            <polygon points="142,78 124,76 128,118 145,112" fill="#CCAA80"/>
+            <!-- nose bridge plane -->
+            <polygon points="90,82 110,82 106,122 94,122" fill="#B88058"/>
+            <!-- left jaw shadow -->
+            <polygon points="53,132 68,130 62,163 58,163" fill="#8A6040"/>
+            <!-- right jaw shadow -->
+            <polygon points="147,132 132,130 138,163 142,163" fill="#8A6040"/>
+            <!-- upper lip -->
+            <polygon points="87,124 113,124 116,144 84,144" fill="#A87050"/>
+            <!-- lips -->
+            <polygon points="86,144 114,144 110,154 90,154" fill="#8A5040"/>
+            <!-- chin -->
+            <polygon points="84,154 116,154 112,163 88,163" fill="#A07858"/>
+
+            <!-- LEFT EYE -->
+            <!-- socket shadow -->
+            <ellipse cx="74" cy="104" rx="11" ry="8" fill="#7A5030" opacity="0.6"/>
+            <!-- white -->
+            <ellipse cx="74" cy="103" rx="9" ry="6.5" fill="#F5F0E8"/>
+            <!-- iris — Vulcan brown -->
+            <ellipse cx="74" cy="103" rx="5.5" ry="5" fill="#5A3A18"/>
+            <!-- pupil -->
+            <ellipse cx="74" cy="103" rx="3" ry="3" fill="#0A0500"/>
+            <!-- highlight -->
+            <ellipse cx="72" cy="101" rx="1.8" ry="1.5" fill="#FFF" opacity="0.7"/>
+            <!-- upper lid -->
+            <polygon points="64,98 84,98 82,101 66,101" fill="#1A0C04" opacity="0.8"/>
+
+            <!-- RIGHT EYE -->
+            <ellipse cx="126" cy="104" rx="11" ry="8" fill="#7A5030" opacity="0.6"/>
+            <ellipse cx="126" cy="103" rx="9" ry="6.5" fill="#F5F0E8"/>
+            <ellipse cx="126" cy="103" rx="5.5" ry="5" fill="#5A3A18"/>
+            <ellipse cx="126" cy="103" rx="3" ry="3" fill="#0A0500"/>
+            <ellipse cx="124" cy="101" rx="1.8" ry="1.5" fill="#FFF" opacity="0.7"/>
+            <polygon points="116,98 136,98 134,101 118,101" fill="#1A0C04" opacity="0.8"/>
+
+            <!-- VULCAN EYEBROWS — sharply angled upward toward centre -->
+            <polygon points="58,93 79,84 81,89 60,97" fill="#2A1508"/>
+            <polygon points="142,93 121,84 119,89 140,97" fill="#2A1508"/>
+
+            <!-- HAIR — dark bowl cut, characteristic Vulcan -->
+            <!-- main hair mass -->
+            <polygon points="55,76 58,60 68,48 100,42 132,48 142,60 145,76 132,70 100,64 68,70" fill="#15101E"/>
+            <!-- crown top -->
+            <polygon points="68,48 100,42 132,48 124,54 100,48 76,54" fill="#0A080E"/>
+            <!-- side hair left -->
+            <polygon points="55,76 58,60 68,48 68,70 62,78" fill="#15101E"/>
+            <!-- side hair right -->
+            <polygon points="145,76 142,60 132,48 132,70 138,78" fill="#15101E"/>
+            <!-- hair underline shadow -->
+            <polygon points="62,78 138,78 135,83 65,83" fill="#0A080E" opacity="0.5"/>
+
+            <!-- LEFT EAR — Vulcan pointed -->
+            <polygon points="53,108 38,94 44,80 56,84 58,108" fill="#BC8860"/>
+            <!-- ear point -->
+            <polygon points="44,80 36,68 46,74 53,82" fill="#AC7850"/>
+            <!-- ear inner -->
+            <polygon points="53,108 48,98 50,84 55,88 56,108" fill="#8A6040" opacity="0.5"/>
+
+            <!-- RIGHT EAR — Vulcan pointed -->
+            <polygon points="147,108 162,94 156,80 144,84 142,108" fill="#BC8860"/>
+            <!-- ear point -->
+            <polygon points="156,80 164,68 154,74 147,82" fill="#AC7850"/>
+            <!-- ear inner -->
+            <polygon points="147,108 152,98 150,84 145,88 144,108" fill="#8A6040" opacity="0.5"/>
+
+            <!-- PADD device -->
+            <rect x="68" y="218" width="64" height="42" rx="5" fill="#080E18" stroke="#1A5A7A" stroke-width="1.5"/>
+            <rect x="73" y="223" width="54" height="30" rx="3" fill="#0C1A28"/>
+            <!-- PADD screen lines — research data -->
+            <line x1="78" y1="229" x2="118" y2="229" stroke="#FF9900" stroke-width="1.2" opacity="0.7"/>
+            <line x1="78" y1="234" x2="110" y2="234" stroke="#6699CC" stroke-width="1" opacity="0.5"/>
+            <line x1="78" y1="239" x2="114" y2="239" stroke="#6699CC" stroke-width="1" opacity="0.5"/>
+            <line x1="78" y1="244" x2="104" y2="244" stroke="#6699CC" stroke-width="1" opacity="0.4"/>
+            <!-- PADD home button -->
+            <circle cx="100" cy="256" r="3.5" fill="#1A5A7A"/>
+            <!-- hands -->
+            <polygon points="68,222 76,216 76,222" fill="#B8825A"/>
+            <polygon points="132,222 124,216 124,222" fill="#B8825A"/>
+          </svg>
+        </div>
+        <div class="portrait-chip" style="font-size:0.72rem; color:#FFF; margin-top:0.5rem;">STAV</div>
+        <div class="portrait-chip sub">Vulcan Archivist</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom LCARS bar -->
+  <div class="hero-bottom">
+    <div class="elbow-bl"></div>
+    <div class="hero-fbars">
+      <div class="pill fb1"></div>
+      <div class="pill fb2"></div>
+      <div class="pill fb3"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PROBLEM
+══════════════════════════════════════════════════════════ -->
+<section id="problem">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-tag">The Research Problem</div>
+      <h2 class="sec-title">The Same Question.<br><em>Four Different Answers.</em></h2>
+    </div>
+
+    <div class="big-q reveal">"Who has played the most roles in Star Trek?"</div>
+
+    <div class="actor-grid">
+
+      <!-- Jeffrey Combs / Weyoun -->
+      <div class="actor-card reveal">
+        <svg viewBox="0 0 90 108" xmlns="http://www.w3.org/2000/svg" width="90" height="108">
+          <!-- Vorta coloring — pale lilac, large eyes, minimal hair -->
+          <polygon points="15,108 75,108 78,82 70,72 45,68 20,72 12,82" fill="#2A1840"/>
+          <polygon points="28,72 62,72 65,82 45,86 25,82" fill="#361E50"/>
+          <polygon points="18,44 45,24 72,44 74,70 68,74 45,78 22,74 16,70" fill="#D0C0E0"/>
+          <!-- Vorta forehead ridge -->
+          <polygon points="28,36 45,24 62,36 56,44 45,40 34,44" fill="#C0B0D5"/>
+          <polygon points="18,44 30,42 27,64 16,58" fill="#E0D0F0"/>
+          <polygon points="72,44 60,42 63,64 74,58" fill="#E0D0F0"/>
+          <!-- large eyes (Vorta) -->
+          <ellipse cx="32" cy="54" rx="9" ry="7" fill="#0A001A"/>
+          <ellipse cx="58" cy="54" rx="9" ry="7" fill="#0A001A"/>
+          <ellipse cx="32" cy="54" rx="5" ry="4" fill="#2A005A"/>
+          <ellipse cx="58" cy="54" rx="5" ry="4" fill="#2A005A"/>
+          <ellipse cx="30" cy="52" rx="2" ry="1.5" fill="#FFF" opacity="0.55"/>
+          <ellipse cx="56" cy="52" rx="2" ry="1.5" fill="#FFF" opacity="0.55"/>
+          <!-- arched brows -->
+          <polygon points="24,46 38,42 40,46 25,50" fill="#7A6090"/>
+          <polygon points="66,46 52,42 50,46 65,50" fill="#7A6090"/>
+          <!-- nose small -->
+          <polygon points="40,58 50,58 48,70 42,70" fill="#C0B0D5"/>
+          <!-- thin lips -->
+          <polygon points="37,72 53,72 51,77 39,77" fill="#A090B0"/>
+          <!-- minimal dark hair -->
+          <polygon points="18,44 20,30 30,20 45,16 60,20 70,30 72,44 62,36 45,30 28,36" fill="#140820"/>
+          <!-- ears — normal human for Weyoun -->
+          <polygon points="16,56 8,50 10,42 18,44" fill="#D0C0E0"/>
+          <polygon points="74,56 82,50 80,42 72,44" fill="#D0C0E0"/>
+        </svg>
+        <div class="actor-name">Jeffrey Combs</div>
+        <div class="actor-roles">Weyoun · Shran · Brunt + 5 more</div>
+        <div class="actor-answer">"It's Combs. Everyone says it's Combs."</div>
+      </div>
+
+      <!-- Vaughn Armstrong — often in heavy alien makeups -->
+      <div class="actor-card reveal">
+        <svg viewBox="0 0 90 108" xmlns="http://www.w3.org/2000/svg" width="90" height="108">
+          <!-- Klingon styling — ridged forehead, strong features -->
+          <polygon points="12,108 78,108 80,80 72,68 45,64 18,68 10,80" fill="#181A0A"/>
+          <polygon points="25,68 65,68 68,80 45,84 22,80" fill="#222A0C"/>
+          <polygon points="15,44 45,22 75,44 76,68 70,73 45,78 20,73 14,68" fill="#8A7850"/>
+          <!-- Klingon forehead ridges -->
+          <polygon points="22,36 35,24 38,36 30,44" fill="#6A5830" opacity="0.9"/>
+          <polygon points="52,36 65,24 68,36 60,44" fill="#6A5830" opacity="0.9"/>
+          <polygon points="35,28 45,22 55,28 50,38 45,34 40,38" fill="#7A6840"/>
+          <!-- cheek planes -->
+          <polygon points="15,44 26,42 23,64 13,58" fill="#A09060"/>
+          <polygon points="75,44 64,42 67,64 77,58" fill="#A09060"/>
+          <!-- eyes -->
+          <ellipse cx="32" cy="54" rx="8" ry="6" fill="#120800"/>
+          <ellipse cx="58" cy="54" rx="8" ry="6" fill="#120800"/>
+          <ellipse cx="30" cy="52" rx="2" ry="1.5" fill="#FFF" opacity="0.35"/>
+          <ellipse cx="56" cy="52" rx="2" ry="1.5" fill="#FFF" opacity="0.35"/>
+          <!-- heavy Klingon brows -->
+          <polygon points="22,45 38,41 40,46 23,50" fill="#2A1A06"/>
+          <polygon points="68,45 52,41 50,46 67,50" fill="#2A1A06"/>
+          <!-- strong nose -->
+          <polygon points="38,56 52,56 50,70 40,70" fill="#9A8860"/>
+          <!-- firm mouth -->
+          <polygon points="34,72 56,72 54,78 36,78" fill="#7A6848"/>
+          <!-- hair close cropped -->
+          <polygon points="15,44 18,28 30,18 45,14 60,18 72,28 75,44 64,36 45,30 26,36" fill="#0E0A04"/>
+          <!-- ears -->
+          <polygon points="14,56 6,50 8,42 15,44" fill="#8A7850"/>
+          <polygon points="76,56 84,50 82,42 75,44" fill="#8A7850"/>
+        </svg>
+        <div class="actor-name">Vaughn Armstrong</div>
+        <div class="actor-roles">Adm. Forrest · Maxwell Forrest + 11 more</div>
+        <div class="actor-answer">"Armstrong has more credited character names."</div>
+      </div>
+
+      <!-- Brent Spiner / Data -->
+      <div class="actor-card reveal">
+        <svg viewBox="0 0 90 108" xmlns="http://www.w3.org/2000/svg" width="90" height="108">
+          <!-- Data — pale gold android, Starfleet uniform, precise -->
+          <polygon points="18,108 72,108 74,80 66,70 45,66 24,70 16,80" fill="#0F1430"/>
+          <polygon points="28,70 62,70 65,80 45,84 25,80" fill="#141840"/>
+          <!-- Starfleet gold collar -->
+          <polygon points="33,70 57,70 60,80 45,83 30,80" fill="#CC8800"/>
+          <polygon points="16,44 45,22 74,44 75,67 68,72 45,77 22,72 15,67" fill="#D4C880"/>
+          <!-- android gold facets -->
+          <polygon points="22,44 36,40 33,62 18,56" fill="#E4D898"/>
+          <polygon points="68,44 54,40 57,62 72,56" fill="#E4D898"/>
+          <polygon points="33,28 45,22 57,28 54,42 45,38 36,42" fill="#EEE8A8"/>
+          <!-- eyes — gold iris -->
+          <ellipse cx="32" cy="52" rx="9" ry="6.5" fill="#1A1200"/>
+          <ellipse cx="58" cy="52" rx="9" ry="6.5" fill="#1A1200"/>
+          <ellipse cx="32" cy="52" rx="5.5" ry="4" fill="#AA8010"/>
+          <ellipse cx="58" cy="52" rx="5.5" ry="4" fill="#AA8010"/>
+          <ellipse cx="32" cy="52" rx="2.5" ry="2.5" fill="#080400"/>
+          <ellipse cx="58" cy="52" rx="2.5" ry="2.5" fill="#080400"/>
+          <ellipse cx="30" cy="50" rx="1.8" ry="1.5" fill="#FFF" opacity="0.65"/>
+          <ellipse cx="56" cy="50" rx="1.8" ry="1.5" fill="#FFF" opacity="0.65"/>
+          <!-- precise thin brows -->
+          <polygon points="24,43 38,40 39,43 25,46" fill="#8A7820"/>
+          <polygon points="66,43 52,40 51,43 65,46" fill="#8A7820"/>
+          <!-- precise nose -->
+          <polygon points="40,56 50,56 49,68 41,68" fill="#C8BC70"/>
+          <!-- subtle Data expression -->
+          <polygon points="36,70 54,70 52,75 38,75" fill="#B0A858"/>
+          <!-- dark hair -->
+          <polygon points="16,44 18,28 30,18 45,14 60,18 72,28 74,44 63,36 45,28 27,36" fill="#14100C"/>
+          <!-- ears -->
+          <polygon points="15,54 7,48 9,40 16,42" fill="#D4C880"/>
+          <polygon points="75,54 83,48 81,40 74,42" fill="#D4C880"/>
+        </svg>
+        <div class="actor-name">Brent Spiner</div>
+        <div class="actor-roles">Data · Lore · Noonian Soong + variants</div>
+        <div class="actor-answer">"Spiner, if you count the full Soong lineage and holodeck roles."</div>
+      </div>
+
+      <!-- Majel Barrett / Lwaxana -->
+      <div class="actor-card reveal">
+        <svg viewBox="0 0 90 108" xmlns="http://www.w3.org/2000/svg" width="90" height="108">
+          <!-- Lwaxana — dramatic hair, jewelry, magenta Betazoid warmth -->
+          <polygon points="16,108 74,108 76,78 68,68 45,64 22,68 14,78" fill="#2A0820"/>
+          <polygon points="26,68 64,68 67,78 45,82 23,78" fill="#380A2A"/>
+          <polygon points="18,50 45,28 72,50 73,70 66,74 45,78 24,74 17,70" fill="#D48E68"/>
+          <!-- face planes -->
+          <polygon points="22,50 36,46 33,68 18,62" fill="#E4A878"/>
+          <polygon points="68,50 54,46 57,68 72,62" fill="#E4A878"/>
+          <polygon points="33,34 45,28 57,34 53,48 45,44 37,48" fill="#EEBC88"/>
+          <!-- eyes — Betazoid all-dark (but stylised) -->
+          <ellipse cx="32" cy="58" rx="9" ry="6.5" fill="#0A0410"/>
+          <ellipse cx="58" cy="58" rx="9" ry="6.5" fill="#0A0410"/>
+          <ellipse cx="32" cy="58" rx="5.5" ry="4" fill="#5A2840"/>
+          <ellipse cx="58" cy="58" rx="5.5" ry="4" fill="#5A2840"/>
+          <ellipse cx="30" cy="56" rx="2" ry="1.5" fill="#FFF" opacity="0.5"/>
+          <ellipse cx="56" cy="56" rx="2" ry="1.5" fill="#FFF" opacity="0.5"/>
+          <!-- eye makeup -->
+          <polygon points="24,52 40,48 42,52 25,56" fill="#802050" opacity="0.6"/>
+          <polygon points="66,52 50,48 48,52 65,56" fill="#802050" opacity="0.6"/>
+          <!-- arched brows -->
+          <polygon points="24,50 40,46 42,50 25,54" fill="#4A1828"/>
+          <polygon points="66,50 50,46 48,50 65,54" fill="#4A1828"/>
+          <!-- nose -->
+          <polygon points="39,62 51,62 50,74 40,74" fill="#C47E58"/>
+          <!-- lips — lipstick -->
+          <polygon points="35,75 55,75 52,81 38,81" fill="#CC3050"/>
+          <!-- ICONIC Lwaxana upswept dramatic hair -->
+          <polygon points="22,44 26,26 35,14 45,10 55,14 64,26 68,44 60,32 45,24 30,32" fill="#C89820"/>
+          <!-- hair side volumes -->
+          <polygon points="18,50 20,34 26,26 30,32 26,40 20,48" fill="#B08010"/>
+          <polygon points="72,50 70,34 64,26 60,32 64,40 70,48" fill="#B08010"/>
+          <!-- hair crown -->
+          <polygon points="34,18 45,10 56,18 52,26 45,20 38,26" fill="#DEB030"/>
+          <!-- jewelry — necklace -->
+          <circle cx="45" cy="81" r="3.5" fill="#CC8800"/>
+          <circle cx="38" cy="83" r="2.5" fill="#CC8800"/>
+          <circle cx="52" cy="83" r="2.5" fill="#CC8800"/>
+          <!-- earrings -->
+          <polygon points="16,62 10,54 14,50 17,56" fill="#D48E68"/>
+          <circle cx="11" cy="57" r="3.5" fill="#CC8800"/>
+          <polygon points="74,62 80,54 76,50 73,56" fill="#D48E68"/>
+          <circle cx="79" cy="57" r="3.5" fill="#CC8800"/>
+        </svg>
+        <div class="actor-name">Majel Barrett</div>
+        <div class="actor-roles">Chapel · Lwaxana · The Computer</div>
+        <div class="actor-answer">"Barrett, once you count the computer voice across every series."</div>
+      </div>
+
+    </div><!-- /actor-grid -->
+
+    <div class="verdict-block reveal">
+      <p class="verdict-main">All four answers are defensible. None is simply correct.</p>
+      <p class="verdict-sub">
+        The answer shifts depending on whether you're counting named characters, credited roles,<br>
+        voice-only performances, holodeck appearances, or whether "the computer" is one role or many.
+      </p>
+      <p class="verdict-punch">A trivia bot picks one. Stav builds the counting method first.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     COMPARISON
+══════════════════════════════════════════════════════════ -->
+<section id="comparison">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-tag">Investigator vs. Summarizer</div>
+      <h2 class="sec-title">Watch the <em>Difference</em></h2>
+      <p style="font-family:var(--mono); font-size:0.88rem; color:var(--dim); line-height:1.75; max-width:560px;">
+        Same question. Two systems. The gap between a lookup and a research partner.
+      </p>
+    </div>
+
+    <div class="comp-grid">
+      <!-- Bot terminal -->
+      <div class="term bot reveal">
+        <div class="term-head">
+          <div class="term-dot"></div>
+          <div class="term-label">Standard Query Response</div>
+        </div>
+        <div class="term-body" id="bot-out"></div>
+      </div>
+
+      <!-- Stav terminal -->
+      <div class="term stav reveal">
+        <div class="term-head">
+          <div class="term-dot"></div>
+          <div class="term-label">Daystrom Protocol — STAV</div>
+        </div>
+        <div class="term-body" id="stav-out"></div>
+      </div>
+    </div>
+
+    <div class="comp-action">
+      <button class="btn btn-fill" id="run-btn" onclick="runComp()">▶ Run Comparison</button>
+      <button class="btn btn-outline" onclick="resetComp()">↺ Reset</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     UNDER THE HOOD
+══════════════════════════════════════════════════════════ -->
+<section id="hood">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-tag">Under the Hood</div>
+      <h2 class="sec-title">Interpretable Context <em>Methodology</em></h2>
+      <p style="font-family:var(--mono); font-size:0.88rem; color:var(--dim); line-height:1.75; max-width:580px; margin-bottom:2.5rem;">
+        Each file does one job well. The folder is the researcher's operating system.
+        Drop it into Claude Code or a Claude Project — Stav activates immediately.
+      </p>
+    </div>
+
+    <div class="hood-grid">
+      <div>
+        <div class="folder-tree reveal">
+          <div class="ft-root">📁 daystrom-claim-auditor/</div>
+          <div style="padding-left:1.1rem; margin-top:0.25rem;">
+            <div><span style="color:#333">├── </span><span class="ft-key">CLAUDE.md</span>  <span class="ft-note">← routing &amp; load order</span></div>
+            <div><span style="color:#333">├── </span><span class="ft-file">README.md</span>  <span class="ft-note">← you are here</span></div>
+            <div><span style="color:#333">├── </span><span class="ft-file">identity.md</span></div>
+            <div><span style="color:#333">├── </span><span class="ft-file">rules.md</span></div>
+            <div><span style="color:#333">├── </span><span class="ft-file">examples.md</span></div>
+            <div><span style="color:#333">└── </span><span class="ft-dir">📁 reference/</span></div>
+            <div style="padding-left:1.4rem;">
+              <div><span style="color:#333">├── </span><span class="ft-file">source-hierarchy.md</span></div>
+              <div><span style="color:#333">├── </span><span class="ft-file">counting-methods.md</span></div>
+              <div><span style="color:#333">├── </span><span class="ft-file">canon-boundaries.md</span></div>
+              <div><span style="color:#333">├── </span><span class="ft-file">claim-types.md</span></div>
+              <div><span style="color:#333">└── </span><span class="ft-file">confidence-scale.md</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="icm-note reveal" style="margin-top:1.5rem;">
+          <div class="sec-tag" style="color:var(--blue);">ICM — Interpretable Context Methodology</div>
+          <p>
+            Each file is readable by a human <em>and</em> a model. No black box.
+            The rules are inspectable. The logic is auditable. The behavior is predictable.
+            Load the folder in any Claude interface and the researcher is ready.
+          </p>
+        </div>
+      </div>
+
+      <div class="file-list" id="file-list">
+        <div class="fd">
+          <div class="fd-name">CLAUDE.md — Routing</div>
+          <div class="fd-desc">Sets the load order and activates Stav. The entry point Claude reads first in any workspace. Tells the model who it is before the first message arrives.</div>
+        </div>
+        <div class="fd">
+          <div class="fd-name">identity.md — Persona</div>
+          <div class="fd-desc">Stav: Vulcan archivist, Daystrom Institute Canon Claims Unit. Defines domain scope, disposition, and explicitly what the researcher is not — no plot summaries, no trivia retrieval.</div>
+        </div>
+        <div class="fd">
+          <div class="fd-name">rules.md — Investigative Protocols</div>
+          <div class="fd-desc">Ten constraints. Never answer a disputed claim without defining terms first. Surface what the user hasn't asked. Flag uncertainty rather than smoothing it away. This is where the researcher differs from a chatbot.</div>
+        </div>
+        <div class="fd">
+          <div class="fd-name">examples.md — Worked Dialogues</div>
+          <div class="fd-desc">Three full exchanges including the back-and-forth — the user specifying scope, Stav calibrating the investigation. Shows the ask-first behavior judges are looking for.</div>
+        </div>
+        <div class="fd">
+          <div class="fd-name">reference/ — Domain Expertise</div>
+          <div class="fd-desc">Five files: source hierarchy (Memory Alpha vs. screen canon), counting methods (the secret weapon), canon boundaries, claim type taxonomy, and a five-level confidence scale from Established to Unknown.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     CTA
+══════════════════════════════════════════════════════════ -->
+<section id="cta">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-tag">Deploy the Researcher</div>
+      <h2 class="sec-title">Get <em>Stav</em></h2>
+    </div>
+
+    <div class="method-grid">
+      <div class="method-card reveal">
+        <div class="m-num">01</div>
+        <div class="m-title">Claude Code — Terminal</div>
+        <div class="m-code">cd daystrom-claim-auditor<br>claude</div>
+        <div class="m-desc">Clone the repo, open the folder in Claude Code from the terminal. CLAUDE.md loads automatically. Stav activates immediately.</div>
+      </div>
+      <div class="method-card reveal">
+        <div class="m-num">02</div>
+        <div class="m-title">Claude Code — Desktop App</div>
+        <div class="m-code">File → Open Folder<br>→ daystrom-claim-auditor/</div>
+        <div class="m-desc">Open Claude Code desktop, select the folder. No terminal needed. Same CLAUDE.md auto-load, same result.</div>
+      </div>
+      <div class="method-card reveal">
+        <div class="m-num">03</div>
+        <div class="m-title">Claude Projects</div>
+        <div class="m-code">Project Instructions ← CLAUDE.md<br>Knowledge Base ← all .md files</div>
+        <div class="m-desc">Paste CLAUDE.md into Project Instructions. Upload all other files to the knowledge base. Works in claude.ai without any local setup.</div>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="qs-label">What to ask Stav</div>
+      <div class="qs-grid">
+        <div class="q-chip">"Who has played the most Star Trek roles — and under what counting method?"</div>
+        <div class="q-chip">"Was Majel Barrett in every series, or does that depend on voice roles and canon scope?"</div>
+        <div class="q-chip">"Is Section 31 a retcon, an expansion, or a continuity reinterpretation?"</div>
+        <div class="q-chip">"Is Tuvix murder? What does canon actually say — and what does it leave open?"</div>
+        <div class="q-chip">"Does Discovery contradict TOS — and which specific claims?"</div>
+        <div class="q-chip">"Which captain violated the Prime Directive most, by which definition?"</div>
+        <div class="q-chip">"What counts as Star Trek canon, officially?"</div>
+        <div class="q-chip">"Did Star Trek predict X technology, or is that overstated?"</div>
+      </div>
+    </div>
+
+    <div class="cta-bar reveal">
+      <div>
+        <p class="cta-kicker">Live long and be rigorous.</p>
+        <p class="cta-sub">Drop the folder into Claude Code or a Claude Project.<br>Stav will ask what's missing before pretending the answer is obvious.</p>
+      </div>
+      <a href="https://github.com/alydperri/daystrom-claim-auditor" class="btn btn-fill" target="_blank" style="font-size:0.8rem; padding:1rem 2.5rem; white-space:nowrap;">
+        ↗ Access on GitHub
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══════════════════════════════════════════ -->
+<footer>
+  <div class="ft-left">
+    Daystrom Claim Auditor · Canon Claims Unit<br>
+    <span style="color:var(--dim); font-size:0.5rem; letter-spacing:0.1em;">Built for Lyceum Weekly Competition #6 · The Researcher</span>
+  </div>
+  <div class="ft-right">
+    Actor portraits are original SVG artistic interpretations — not reproductions of photographs.<br>
+    Star Trek is a trademark of Paramount Global. This is a fan research tool.<br>
+    <a href="https://github.com/alydperri/daystrom-claim-auditor" target="_blank">GitHub Repository</a>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════════ -->
+<script>
+// ─── BOOT SEQUENCE ──────────────────────────────────────
+
+const bootIds  = ['b1','b2','b3','b4','b5','b6','b7','b8','b9','b10','b11'];
+const bootGaps = [180,180,260,140,140,140,140,140,320,200,400];
+let bi = 0;
+
+function nextBoot() {
+  if (bi >= bootIds.length) { setTimeout(startTransporter, 500); return; }
+  const el = document.getElementById(bootIds[bi]);
+  if (el) el.classList.add('on');
+  setTimeout(nextBoot, bootGaps[bi]);
+  bi++;
+}
+setTimeout(nextBoot, 350);
+
+// ─── TRANSPORTER SHIMMER ─────────────────────────────────
+
+function startTransporter() {
+  const overlay = document.getElementById('boot');
+  const canvas  = document.getElementById('shimmer');
+  const ctx     = canvas.getContext('2d');
+
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.style.opacity = '1';
+
+  overlay.classList.add('out');
+  setTimeout(() => overlay.style.display = 'none', 1000);
+
+  // Build particles
+  const N = 380;
+  const particles = Array.from({length: N}, () => ({
+    x:    Math.random() * canvas.width,
+    y:    Math.random() * canvas.height,
+    vx:   (Math.random() - 0.5) * 1.8,
+    vy:   (Math.random() - 0.5) * 2.5 - 0.8,
+    r:    Math.random() * 2.5 + 0.5,
+    op:   Math.random() * 0.7 + 0.3,
+    dec:  Math.random() * 0.012 + 0.007,
+    gold: Math.random() > 0.35
+  }));
+
+  let frame = 0;
+  const MAX = 140;
+
+  function draw() {
+    frame++;
+    const prog = frame / MAX;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let any = false;
+    particles.forEach(p => {
+      if (p.op <= 0) return;
+      any = true;
+      p.x  += p.vx;
+      p.y  += p.vy;
+      p.vy -= 0.04;
+
+      const shimmer = Math.sin(frame * 0.25 + p.x * 0.08) * 0.15;
+      const alpha = Math.max(0, p.op + shimmer);
+
+      ctx.globalAlpha = alpha;
+      ctx.shadowBlur  = 8;
+
+      if (p.gold) {
+        ctx.fillStyle   = '#FF9900';
+        ctx.shadowColor = '#FF9900';
+      } else {
+        ctx.fillStyle   = '#FFFFFF';
+        ctx.shadowColor = '#FFFFFF';
+      }
+
+      // Mix dots and vertical shimmer streaks
+      if (Math.random() > 0.72) {
+        ctx.fillRect(p.x, p.y, 1, Math.random() * 18 + 6);
+      } else {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      p.op -= p.dec * (0.6 + prog * 0.8);
+    });
+
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur  = 0;
+
+    if (any && frame < MAX * 1.6) {
+      requestAnimationFrame(draw);
+    } else {
+      canvas.style.transition = 'opacity 0.6s ease';
+      canvas.style.opacity    = '0';
+      document.getElementById('hero').classList.add('on');
+      initReveal();
+    }
+  }
+
+  draw();
+}
+
+// ─── SCROLL REVEAL ───────────────────────────────────────
+
+let fdCycleTimer  = null;
+let fdCycleIndex  = 0;
+let fdPaused      = false;
+
+function startFdCycle() {
+  const fds = Array.from(document.querySelectorAll('.fd.on'));
+  if (!fds.length) return;
+
+  function setActive(idx) {
+    fds.forEach((fd, i) => {
+      fd.classList.toggle('fd-active', i === idx);
+    });
+  }
+
+  function tick() {
+    if (!fdPaused) {
+      setActive(fdCycleIndex);
+      fdCycleIndex = (fdCycleIndex + 1) % fds.length;
+    }
+  }
+
+  // Start immediately
+  setActive(fdCycleIndex);
+  fdCycleIndex = 1 % fds.length;
+  fdCycleTimer = setInterval(tick, 2200);
+
+  // Hover: pause cycle, highlight hovered item only
+  fds.forEach((fd, i) => {
+    fd.addEventListener('mouseenter', () => {
+      fdPaused = true;
+      fds.forEach((f, j) => {
+        f.classList.remove('fd-active');
+        f.classList.toggle('fd-hover', j === i);
+      });
+    });
+    fd.addEventListener('mouseleave', () => {
+      fdPaused = false;
+      fds.forEach(f => f.classList.remove('fd-hover'));
+    });
+  });
+}
+
+function initReveal() {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('on');
+
+      // Stagger file descriptions, then start cycle
+      if (e.target.id === 'file-list') {
+        const fds = e.target.querySelectorAll('.fd');
+        fds.forEach((fd, i) => {
+          setTimeout(() => fd.classList.add('on'), i * 110);
+        });
+        setTimeout(startFdCycle, fds.length * 110 + 200);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  const fl = document.getElementById('file-list');
+  if (fl) io.observe(fl);
+
+  // Auto-trigger comparison when in view
+  const compIO = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !compRan) {
+      setTimeout(runComp, 600);
+    }
+  }, { threshold: 0.4 });
+  const comp = document.getElementById('comparison');
+  if (comp) compIO.observe(comp);
+}
+
+// ─── COMPARISON TERMINALS ────────────────────────────────
+
+let compRan = false;
+
+const BOT_SCRIPT = [
+  { t: '▶  QUERY: Who has played the most roles in Star Trek?', cls: 'tl-query' },
+  { t: '' },
+  { t: 'PROCESSING...', cls: 'tl-proc' },
+  { t: '' },
+  { t: 'RESULT:', cls: 'tl-type' },
+  { t: 'Jeffrey Combs, with 8 distinct characters —', cls: 'tl-ans' },
+  { t: 'including Weyoun and Commander Shran.', cls: 'tl-ans' },
+  { cursor: 'r' }
+];
+
+const STAV_SCRIPT = [
+  { t: '▶  QUERY: Who has played the most roles in Star Trek?', cls: 'tl-query' },
+  { t: '' },
+  { t: '⟳  CLAIM TYPE IDENTIFIED: Definitionally Sensitive — Type 2', cls: 'tl-type' },
+  { t: '' },
+  { t: 'Before I can give you a useful answer, I need', cls: 'tl-gold' },
+  { t: 'to establish the counting method. This question', cls: 'tl-gold' },
+  { t: 'has at least five defensible interpretations.', cls: 'tl-gold' },
+  { t: '' },
+  { t: 'Are we counting:', cls: 'tl-type' },
+  { t: '  [A]  Distinct named characters only?', cls: 'tl-opt' },
+  { t: '  [B]  All credited roles, named + unnamed?', cls: 'tl-opt' },
+  { t: '  [C]  Voice-only roles as separate entries?', cls: 'tl-opt' },
+  { t: '  [D]  The Computer as one role or many?', cls: 'tl-opt' },
+  { t: '' },
+  { t: "What's your use case — trivia, essay, or wiki edit?", cls: 'tl-prompt' },
+  { cursor: 'g' }
+];
+
+function addLine(el, item) {
+  if (item.cursor) {
+    const c = document.createElement('span');
+    c.className = 't-cursor ' + item.cursor;
+    el.appendChild(c);
+    return;
+  }
+  const s = document.createElement('span');
+  s.className = 'tl ' + (item.cls || '');
+  s.textContent = item.t || '\u00A0';
+  el.appendChild(s);
+}
+
+function runComp() {
+  if (compRan) return;
+  compRan = true;
+  document.getElementById('run-btn').disabled = true;
+  document.getElementById('run-btn').style.opacity = '0.5';
+
+  const botEl  = document.getElementById('bot-out');
+  const stavEl = document.getElementById('stav-out');
+
+  let botDelay  = 0;
+  let stavDelay = 350;
+
+  BOT_SCRIPT.forEach(item => {
+    setTimeout(() => addLine(botEl, item), botDelay);
+    botDelay += item.t === '' ? 120 : item.cursor ? 0 : 280;
+  });
+
+  STAV_SCRIPT.forEach(item => {
+    setTimeout(() => addLine(stavEl, item), stavDelay);
+    stavDelay += item.t === '' ? 100 : item.cursor ? 0 : 340;
+  });
+}
+
+function resetComp() {
+  compRan = false;
+  document.getElementById('bot-out').innerHTML  = '';
+  document.getElementById('stav-out').innerHTML = '';
+  const btn = document.getElementById('run-btn');
+  btn.disabled = false;
+  btn.style.opacity = '1';
+}
+</script>
+
+</body>
+</html>
