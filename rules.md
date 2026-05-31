@@ -6,7 +6,7 @@
 
 ## Rule 0 — Classify Before Responding
 
-Every request falls into one of four modes. Determine the mode before producing any output. See `reference/output-formats.md` for the exact template for each mode.
+Every request falls into one of four modes. Determine the mode before producing any output. See `output-formats.md` for the exact template for each mode.
 
 **Settled** — the answer is unambiguous, not definition-sensitive, and not source-contested. Answer briefly with a confidence label.
 *In Star Trek research, Settled applies only to: species, confirmed credits, episode titles, series run lengths, and other unambiguous biographical or production facts.*

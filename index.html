@@ -1019,8 +1019,10 @@ footer {
           <div style="padding-left:1.1rem; margin-top:0.25rem;">
             <div><span style="color:#333">├── </span><span class="ft-key">CLAUDE.md</span>  <span class="ft-note">← routing &amp; load order</span></div>
             <div><span style="color:#333">├── </span><span class="ft-file">README.md</span>  <span class="ft-note">← you are here</span></div>
+            <div><span style="color:#333">├── </span><span class="ft-file">DESIGN.md</span>  <span class="ft-note">← design rationale &amp; tradeoffs</span></div>
             <div><span style="color:#333">├── </span><span class="ft-file">identity.md</span></div>
             <div><span style="color:#333">├── </span><span class="ft-file">rules.md</span></div>
+            <div><span style="color:#333">├── </span><span class="ft-file">output-formats.md</span></div>
             <div><span style="color:#333">├── </span><span class="ft-file">examples.md</span></div>
             <div><span style="color:#333">└── </span><span class="ft-dir">📁 reference/</span></div>
             <div style="padding-left:1.4rem;">
@@ -1046,23 +1048,27 @@ footer {
       <div class="file-list" id="file-list">
         <div class="fd">
           <div class="fd-name">CLAUDE.md — Routing</div>
-          <div class="fd-desc">Sets the load order and activates Stav. The entry point Claude reads first in any workspace. Tells the model who it is before the first message arrives.</div>
+          <div class="fd-desc">Sets the load order and activates Stav. Tells Claude this is a Star Trek research workspace, not a coding environment, before the first message arrives.</div>
         </div>
         <div class="fd">
           <div class="fd-name">identity.md — Persona</div>
-          <div class="fd-desc">Stav: Vulcan archivist, Daystrom Institute Canon Claims Unit. Defines domain scope, disposition, and explicitly what the researcher is not — no plot summaries, no trivia retrieval.</div>
+          <div class="fd-desc">Stav: Vulcan archivist, Daystrom Institute Canon Claims Unit. Defines domain scope, disposition, and explicitly what the researcher is not.</div>
         </div>
         <div class="fd">
           <div class="fd-name">rules.md — Investigative Protocols</div>
-          <div class="fd-desc">Ten constraints. Never answer a disputed claim without defining terms first. Surface what the user hasn't asked. Flag uncertainty rather than smoothing it away. This is where the researcher differs from a chatbot.</div>
+          <div class="fd-desc">Ten constraints. Classify before responding. Ask the load-bearing question first. Verify before asserting. Surface what the user hasn't asked. The question is the research.</div>
+        </div>
+        <div class="fd">
+          <div class="fd-name">output-formats.md — Templates</div>
+          <div class="fd-desc">Exact templates for each response mode: Settled, Clarification Required, Assumption Allowed, Full Audit. Loaded in core so the scaffold is ready before any response.</div>
         </div>
         <div class="fd">
           <div class="fd-name">examples.md — Worked Dialogues</div>
-          <div class="fd-desc">Three full exchanges including the back-and-forth — the user specifying scope, Stav calibrating the investigation. Shows the ask-first behavior judges are looking for.</div>
+          <div class="fd-desc">Four complete exchanges showing investigative behavior — including back-and-forth, the full audit format in practice, and a settled-fact example showing when brevity is correct.</div>
         </div>
         <div class="fd">
           <div class="fd-name">reference/ — Domain Expertise</div>
-          <div class="fd-desc">Five files: source hierarchy (Memory Alpha vs. screen canon), counting methods (the secret weapon), canon boundaries, claim type taxonomy, and a five-level confidence scale from Established to Unknown.</div>
+          <div class="fd-desc">Five files consulted on demand: source hierarchy, counting methods, canon boundaries, claim types, and a five-level confidence scale. Each triggered by the rule that needs it.</div>
         </div>
       </div>
     </div>

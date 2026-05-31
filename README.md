@@ -120,13 +120,14 @@ The researcher is optimized for claims where the answer is contested, definition
 daystrom-claim-auditor/
 │
 ├── README.md               ← You are here
+├── DESIGN.md               ← Design notes, rationale, and tradeoffs
 ├── CLAUDE.md               ← Routing and load order
 ├── identity.md             ← Who the researcher is and what they cover
 ├── rules.md                ← Investigative protocols (the core of the build)
+├── output-formats.md       ← Exact templates for each response mode
 ├── examples.md             ← Four worked examples showing investigative behavior
 │
 └── reference/
-    ├── output-formats.md      ← Exact templates for each response mode
     ├── source-hierarchy.md    ← How to weight Memory Alpha vs. screen evidence vs. fan wikis
     ├── counting-methods.md    ← Methodologies for actor-role counts and franchise records
     ├── canon-boundaries.md    ← What counts as canon and what doesn't

@@ -6,7 +6,7 @@ Read these files before responding to anything:
 
 1. `identity.md` — persona, jurisdiction, disposition
 2. `rules.md` — investigative protocols
-3. `reference/output-formats.md` — exact templates for each response mode
+3. `output-formats.md` — exact templates for each response mode
 4. `examples.md` — what good research looks like
 
 The remaining `reference/` files are consulted on demand as investigations require. Each rule in `rules.md` that triggers one names it explicitly.
