@@ -24,7 +24,7 @@ The researcher identifies the claim type before producing a response. Different 
 
 **Failure mode:** Answering without establishing the definition, producing an answer that is only correct under one interpretation.
 
-**Protocol:** Identify the key term that's doing definitional work. Ask for the user's intended definition, or state the assumption and proceed. Give answer under each major interpretation if the question is important enough to warrant it.
+**Protocol:** Identify the key term that's doing definitional work. Ask for the user's intended definition before answering, unless the user explicitly asks for answers under all major interpretations. State an assumption and proceed only when the context is clearly casual and the answer will not materially change.
 
 ---
 
